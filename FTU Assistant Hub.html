@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FTU Assistant Hub</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<style>
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body,#root{height:100%;margin:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,'Noto Sans','Malgun Gothic','PingFang SC','Microsoft YaHei',sans-serif;background:#fff;color:#1f2937}
+.bg{background:radial-gradient(900px 500px at 85% -10%,rgba(200,16,46,.14),transparent),radial-gradient(700px 500px at -10% 100%,rgba(200,16,46,.10),transparent),#fdf7f8}
+.glass{background:rgba(255,255,255,.68);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.9);box-shadow:0 8px 30px rgba(200,16,46,.07)}
+.card{transition:transform .25s,box-shadow .25s}.card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(200,16,46,.18)}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mq{display:flex;width:max-content;animation:mq 45s linear infinite}
+@keyframes wave{0%,100%{height:6px}50%{height:30px}}
+.bar{width:5px;border-radius:3px;background:#C8102E;animation:wave .9s ease-in-out infinite}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.5)}50%{box-shadow:0 0 0 24px rgba(255,255,255,0)}}
+.sos{animation:pulse2 1.6s infinite}
+.sc::-webkit-scrollbar{width:6px}.sc::-webkit-scrollbar-thumb{background:#e5b4bb;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState,useEffect,useRef,useContext,createContext}=React;
+const html=htm.bind(React.createElement);
+const P={home:"M3 11l9-8 9 8M5 10v10h14V10",lang:"M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6",heart:"M12 21s-8-5-8-11a4.5 4.5 0 018-3 4.5 4.5 0 018 3c0 6-8 11-8 11z",brief:"M3 7h18v13H3zM8 7V4h8v3",alert:"M12 2L2 21h20L12 2zM12 9v5M12 17h.01",mic:"M12 2a3 3 0 00-3 3v6a3 3 0 006 0V5a3 3 0 00-3-3zM19 10v1a7 7 0 01-14 0v-1M12 18v4",book:"M4 19.5A2.5 2.5 0 016.5 17H20V2H6.5A2.5 2.5 0 004 4.5v15zM4 19.5A2.5 2.5 0 006.5 22H20v-5",users:"M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8",food:"M3 2v7c0 1.1.9 2 2 2h2a2 2 0 002-2V2M6 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7",phone:"M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 1.9.7 2.8a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4c.9.3 1.8.6 2.8.7a2 2 0 011.7 2z",bus:"M4 6h16v10H4zM4 11h16M7 19v2M17 19v2M7 16h.01M17 16h.01",sun:"M12 17a5 5 0 100-10 5 5 0 000 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4",wind:"M9.6 4.6A2 2 0 1112 8H2M12.6 19.4A2 2 0 1014 16H2M17.7 7.7A2.5 2.5 0 1119 12H2",msg:"M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z",x:"M18 6L6 18M6 6l12 12",send:"M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z",back:"M19 12H5M12 19l-7-7 7-7",qr:"M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM20 14v7h-3",arrow:"M5 12h14M12 5l7 7-7 7",spark:"M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z",bank:"M3 21h18M5 21V10M9 21V10M15 21V10M19 21V10M2 10l10-7 10 7",doc:"M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M9 13h6M9 17h6",sim:"M6 2h8l4 4v16H6zM9 12h6v6H9z",check:"M20 6L9 17l-5-5",clock:"M12 22a10 10 0 100-20 10 10 0 000 20zM12 6v6l4 2",user:"M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z",mobile:"M7 2h10a1 1 0 011 1v18a1 1 0 01-1 1H7a1 1 0 01-1-1V3a1 1 0 011-1zM12 18h.01"};
+const Ic=({n,s=22,c="",w=2})=>html`<svg width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=${w} stroke-linecap="round" stroke-linejoin="round" class=${c}><path d=${P[n]}/></svg>`;
+
+/* ---------- Localization: each row = [EN, VN, KR, FR, ZH] ---------- */
+const LANGS=["en","vn","kr","fr","zh"];
+const D={
+sub1:["Foreign Trade University · Hanoi","Đại học Ngoại thương · Hà Nội","대외무역대학교 · 하노이","Université du Commerce Extérieur · Hanoï","对外贸易大学 · 河内"],
+city:["Hanoi","Hà Nội","하노이","Hanoï","河内"],
+unh:["Unhealthy","Không tốt","나쁨","Mauvais","不健康"],
+dash:["Dashboard","Bảng điều khiển","대시보드","Tableau de bord","仪表盘"],
+lang:["Language & Academic","Ngôn ngữ & Học tập","언어 & 학업","Langue & Études","语言与学业"],
+cult:["Culture & Lifestyle","Văn hóa & Đời sống","문화 & 생활","Culture & Vie quotidienne","文化与生活"],
+admin:["Admin & Services","Hành chính & Dịch vụ","행정 & 서비스","Admin & Services","行政与服务"],
+sos:["SOS / Emergency","SOS / Khẩn cấp","SOS / 긴급","SOS / Urgence","SOS / 紧急求助"],
+mq:["📢 FTU Announcements: Vietnamese 101 Class opens next Monday!  |  Join the 'Culture Exchange Day' this Friday!  |  FTU Buddy Club recruitment is open!  |  ","📢 Thông báo FTU: Lớp Tiếng Việt 101 khai giảng vào thứ Hai tuần sau!  |  Tham gia 'Ngày Giao lưu Văn hóa' vào thứ Sáu này!  |  Câu lạc bộ FTU Buddy đang tuyển thành viên!  |  ","📢 FTU 공지: 베트남어 101 수업이 다음 주 월요일에 개강합니다!  |  이번 주 금요일 '문화 교류의 날'에 참여하세요!  |  FTU 버디 클럽 회원을 모집 중입니다!  |  ","📢 Annonces FTU : le cours Vietnamien 101 ouvre lundi prochain !  |  Rejoignez la « Journée d'échange culturel » ce vendredi !  |  Le FTU Buddy Club recrute !  |  ","📢 FTU公告：越南语101课程下周一开课！  |  本周五来参加“文化交流日”！  |  FTU伙伴俱乐部正在招募！  |  "],
+hi:["Welcome to FTU","Chào mừng đến FTU","FTU에 오신 것을 환영합니다","Bienvenue à la FTU","欢迎来到FTU"],
+hs:["Everything an international student needs, in one place.","Mọi thứ sinh viên quốc tế cần, trong một nơi.","유학생에게 필요한 모든 것을 한곳에서.","Tout ce dont un étudiant international a besoin, au même endroit.","国际学生所需的一切，尽在这里。"],
+procT:["Essential Administrative Procedures","Thủ tục hành chính thiết yếu","필수 행정 절차","Démarches administratives essentielles","必备行政手续"],
+procS:["Tap a card for the step-by-step guide","Chạm vào thẻ để xem hướng dẫn từng bước","카드를 눌러 단계별 안내를 확인하세요","Touchez une carte pour le guide étape par étape","点击卡片查看分步指南"],
+start:["START HERE","BẮT ĐẦU TẠI ĐÂY","여기서 시작","COMMENCER ICI","从这里开始"],
+step:["Step","Bước","단계","Étape","步骤"],
+tools:["Study Tools","Công cụ học tập","학습 도구","Outils d'étude","学习工具"],
+c1:["Live Lecture Translator","Dịch bài giảng trực tiếp","실시간 강의 번역","Traducteur de cours en direct","课堂实时翻译"],
+c2:["Bilingual Guidebooks","Cẩm nang song ngữ","이중 언어 가이드북","Guides bilingues","双语指南手册"],
+c3:["Peer-Buddy System","Kết nối sinh viên bản địa","버디 매칭","Système de binômes","同伴互助计划"],
+c4:["FTU Food Map","Bản đồ ẩm thực FTU","FTU 음식 지도","Carte gourmande FTU","FTU美食地图"],
+c5:["International Contact Point","Đầu mối quốc tế","국제 연락 창구","Point de contact international","国际事务联络点"],
+c6:["Mobility & Transport","Di chuyển & Giao thông","교통 & 이동","Mobilité & Transports","出行与交通"],
+s1:["Real-time transcribe & translate.","Ghi chép & dịch theo thời gian thực.","실시간 받아쓰기 및 번역.","Transcription et traduction en temps réel.","实时转写与翻译。"],
+s2:["Admin procedures & syllabus in English. Scan to download.","Thủ tục hành chính & giáo trình bằng tiếng Anh. Quét để tải về.","행정 절차와 강의계획서를 영어로. 스캔하여 다운로드.","Démarches et programmes en anglais. Scannez pour télécharger.","英文版行政手续与教学大纲，扫码下载。"],
+s3:["Match with a local Vietnamese student for 1-1 support.","Kết nối với sinh viên Việt Nam để được hỗ trợ 1-1.","현지 베트남 학생과 1:1 지원을 받으세요.","Jumelez-vous avec un étudiant vietnamien pour un soutien individuel.","与本地越南学生配对，获得一对一帮助。"],
+s4:["Halal, Vegetarian & Local safe food near campus.","Món Halal, chay & đặc sản địa phương an toàn gần trường.","캠퍼스 근처 할랄, 채식 및 안전한 현지 음식.","Halal, végétarien et cuisine locale sûre près du campus.","校园附近的清真、素食及安全本地美食。"],
+s5:["Connect with English-speaking staff at Faculty Office.","Liên hệ cán bộ nói tiếng Anh tại Văn phòng Khoa.","학부 사무실의 영어 가능 직원과 연결하세요.","Contactez le personnel anglophone du bureau de la faculté.","联系学院办公室的英语工作人员。"],
+s6:["Xanh SM, Bus map & safe crossing guides.","Xanh SM, bản đồ xe buýt & hướng dẫn sang đường an toàn.","Xanh SM, 버스 노선도 및 안전한 횡단 안내.","Xanh SM, plan des bus et guide pour traverser en sécurité.","Xanh SM、公交地图与安全过马路指南。"],
+a1:["Tap to try","Chạm để thử","눌러서 체험","Appuyez pour essayer","点击体验"],
+a2:["Scan QR","Quét mã QR","QR 스캔","Scanner le QR","扫描二维码"],
+a3:["Find a buddy","Tìm bạn đồng hành","버디 찾기","Trouver un binôme","寻找伙伴"],
+a4:["Open map","Mở bản đồ","지도 열기","Ouvrir la carte","打开地图"],
+a5:["Contact staff","Liên hệ cán bộ","직원 연락","Contacter le personnel","联系工作人员"],
+a6:["View routes","Xem tuyến đường","경로 보기","Voir les itinéraires","查看路线"],
+tg3:["120+ buddies","120+ bạn đồng hành","버디 120+","120+ binômes","120+位伙伴"],
+tg5:["Mon–Fri","Thứ 2–Thứ 6","월–금","Lun–Ven","周一至周五"],
+trSub:["Vietnamese → English · 5-second demo","Tiếng Việt → Tiếng Anh · Demo 5 giây","베트남어 → 영어 · 5초 데모","Vietnamien → Anglais · Démo de 5 s","越南语 → 英语 · 5秒演示"],
+trIdle:["Press the button to start listening","Nhấn nút để bắt đầu nghe","버튼을 눌러 듣기를 시작하세요","Appuyez sur le bouton pour écouter","点击按钮开始收听"],
+startL:["Start Listening","Bắt đầu nghe","듣기 시작","Commencer l'écoute","开始收听"],
+restart:["Restart","Bắt đầu lại","다시 시작","Recommencer","重新开始"],
+listening:["Listening…","Đang nghe…","듣는 중…","Écoute en cours…","正在收听…"],
+tdone:["Session complete — transcript ready to save.","Hoàn tất — bản ghi sẵn sàng để lưu.","세션 완료 — 기록을 저장할 수 있습니다.","Session terminée — transcription prête à enregistrer.","会话结束 — 转写内容可保存。"],
+emer:["EMERGENCY","KHẨN CẤP","긴급 상황","URGENCE","紧急情况"],
+calm:["Stay calm. Help is available 24/7.","Hãy bình tĩnh. Hỗ trợ có sẵn 24/7.","침착하세요. 24시간 도움을 받을 수 있습니다.","Restez calme. De l'aide est disponible 24h/24, 7j/7.","请保持冷静。我们提供24小时全天候援助。"],
+hot:["FTU 24/7 Hotline","Đường dây nóng FTU 24/7","FTU 24시간 핫라인","Ligne d'urgence FTU 24h/24","FTU 24小时热线"],
+pol:["Police","Công an","경찰","Police","警察"],
+fire:["Fire","Cứu hỏa","소방","Pompiers","消防"],
+amb:["Ambulance","Cấp cứu","구급차","Ambulance","急救"],
+backHub:["Back to Hub","Về trang chủ","허브로 돌아가기","Retour à l'accueil","返回首页"],
+online:["Online · FTU Database","Trực tuyến · Cơ sở dữ liệu FTU","온라인 · FTU 데이터베이스","En ligne · Base de données FTU","在线 · FTU数据库"],
+greet:["Hi! I'm FTU Support AI 👋 Ask me a full question about administrative procedures — banking, residence, visa, student ID, courses or SIM cards.","Xin chào! Tôi là FTU Support AI 👋 Hãy hỏi tôi về thủ tục hành chính — ngân hàng, tạm trú, visa, thẻ sinh viên, đăng ký học phần hoặc SIM.","안녕하세요! FTU Support AI입니다 👋 은행, 거주 등록, 비자, 학생증, 수강신청, 유심 등 행정 절차에 대해 질문해 보세요.","Bonjour ! Je suis FTU Support AI 👋 Posez-moi une question sur les démarches : banque, résidence, visa, carte étudiante, inscription aux cours ou carte SIM.","你好！我是FTU Support AI 👋 欢迎询问行政手续：银行、居住登记、签证、学生证、选课或SIM卡。"],
+ph:["Type a message...","Nhập tin nhắn...","메시지를 입력하세요...","Écrivez un message...","输入消息..."],
+search:["Searching FTU Database...","Đang tìm trong cơ sở dữ liệu FTU...","FTU 데이터베이스 검색 중...","Recherche dans la base FTU...","正在搜索FTU数据库..."],
+fb:["I am currently scanning the FTU database for this procedure. For complex administrative matters, please visit the International Office at Building A.","Hiện tôi đang tra cứu thủ tục này trong cơ sở dữ liệu FTU. Với các vấn đề hành chính phức tạp, vui lòng đến Văn phòng Quốc tế tại Tòa nhà A.","현재 이 절차를 FTU 데이터베이스에서 확인 중입니다. 복잡한 행정 문제는 A동 국제처를 방문해 주세요.","Je recherche actuellement cette démarche dans la base FTU. Pour les questions administratives complexes, rendez-vous au Bureau international, bâtiment A.","我正在FTU数据库中查找该手续。如涉及复杂的行政事务，请前往A楼国际办公室。"],
+ch1:["Bank account","Tài khoản NH","은행 계좌","Compte bancaire","银行账户"],
+ch2:["Residence","Tạm trú","거주 등록","Résidence","居住登记"],
+ch3:["Visa","Visa","비자","Visa","签证"],
+ch4:["Student ID","Thẻ sinh viên","학생증","Carte étudiante","学生证"],
+ch5:["Courses","Học phần","수강신청","Cours","选课"],
+ch6:["SIM card","SIM","유심","Carte SIM","SIM卡"],
+p1:["Register Temporary Residence","Đăng ký tạm trú","임시 거주 등록","Déclarer la résidence temporaire","办理临时居住登记"],
+p2:["Open Bank Account","Mở tài khoản ngân hàng","은행 계좌 개설","Ouvrir un compte bancaire","开设银行账户"],
+p3:["Extend Visa","Gia hạn visa","비자 연장","Prolonger le visa","签证延期"],
+p4:["Register Local SIM","Đăng ký SIM nội địa","현지 유심 등록","Enregistrer une carte SIM locale","登记本地SIM卡"],
+time1:["Day 1-3","Ngày 1-3","1~3일차","Jours 1 à 3","第1-3天"],
+time2:["Day 3-7","Ngày 3-7","3~7일차","Jours 3 à 7","第3-7天"],
+time3:["15 days before expiry","Trước khi hết hạn 15 ngày","만료 15일 전","15 jours avant l'expiration","到期前15天"],
+who1:["Dorm Manager / Landlord","Chủ nhà trọ / Cán bộ KTX","기숙사 관리자 / 집주인","Responsable de résidence / Propriétaire","宿舍管理员 / 房东"],
+who2:["International Office","Văn phòng Quốc tế","국제처","Bureau international","国际办公室"],
+who3:["FTU Buddy","Bạn đồng hành FTU","FTU 버디","Binôme FTU","FTU伙伴"],
+act1:["Submit your original Passport and Visa to your landlord so they can register your residence at the Ward Police Station within 24 hours of arrival.","Nộp Hộ chiếu gốc và Visa cho chủ nhà để họ đăng ký tạm trú của bạn tại Công an Phường trong vòng 24 giờ kể từ khi bạn đến.","여권 원본과 비자를 집주인에게 제출하면, 집주인이 도착 후 24시간 이내에 관할 경찰서(Công an Phường)에 거주 등록을 합니다.","Remettez votre passeport original et votre visa à votre propriétaire afin qu'il déclare votre résidence au commissariat de quartier dans les 24 heures suivant votre arrivée.","将护照原件和签证交给房东，由其在您抵达后24小时内到辖区派出所办理居住登记。"],
+act2:["Bring Passport, Visa, and FTU Confirmation. FTU organizes a 'Centralized Bank Account Opening Day' on campus. Setup E-banking and VNPay/QR payments.","Mang theo Hộ chiếu, Visa và Giấy xác nhận của FTU. FTU tổ chức 'Ngày mở tài khoản ngân hàng tập trung' tại trường. Cài đặt E-banking và thanh toán VNPay/QR.","여권, 비자, FTU 재학 확인서를 지참하세요. FTU는 캠퍼스에서 '단체 은행 계좌 개설의 날'을 운영합니다. 인터넷뱅킹과 VNPay/QR 결제를 설정하세요.","Apportez passeport, visa et attestation FTU. La FTU organise une « Journée d'ouverture groupée de comptes bancaires » sur le campus. Configurez la banque en ligne et les paiements VNPay/QR.","携带护照、签证和FTU证明信。FTU会在校内举办“集中开户日”。请同时设置网上银行及VNPay/二维码支付。"],
+act3:["Submit Form NA5, original passport, and FTU Intro Letter to Hanoi Immigration Dept (44 Pham Ngoc Thach).","Nộp Mẫu NA5, hộ chiếu gốc và Thư giới thiệu của FTU tại Phòng Quản lý Xuất nhập cảnh Hà Nội (44 Phạm Ngọc Thạch).","NA5 양식, 여권 원본, FTU 소개서를 하노이 출입국관리국(44 Pham Ngoc Thach)에 제출하세요.","Déposez le formulaire NA5, votre passeport original et la lettre d'introduction FTU au Service de l'immigration de Hanoï (44 Pham Ngoc Thach).","向河内出入境管理部门（44 Pham Ngoc Thach）提交NA5表格、护照原件和FTU介绍信。"],
+act4:["Bring your original Passport to an official telecom store (Viettel/Vinaphone) for real-name registration.","Mang Hộ chiếu gốc đến cửa hàng viễn thông chính thức (Viettel/Vinaphone) để đăng ký thông tin thuê bao chính chủ.","여권 원본을 지참하고 공식 통신사 매장(Viettel/Vinaphone)에서 실명 등록을 하세요.","Apportez votre passeport original dans une boutique officielle (Viettel/Vinaphone) pour l'enregistrement à votre nom.","携带护照原件前往官方营业厅（Viettel/Vinaphone）办理实名登记。"],
+dPass:["Original Passport","Hộ chiếu gốc","여권 원본","Passeport original","护照原件"],
+dVisa:["Valid Visa","Visa còn hiệu lực","유효한 비자","Visa en cours de validité","有效签证"],
+dLand:["Landlord / Dorm Manager contact","Liên hệ chủ nhà / cán bộ KTX","집주인 / 기숙사 관리자 연락처","Contact du propriétaire / responsable de résidence","房东/宿舍管理员联系方式"],
+dConf:["FTU Confirmation","Giấy xác nhận của FTU","FTU 재학 확인서","Attestation FTU","FTU证明信"],
+dEbank:["Set up E-banking and VNPay/QR payments","Cài đặt E-banking và thanh toán VNPay/QR","인터넷뱅킹 및 VNPay/QR 결제 설정","Configurer la banque en ligne et VNPay/QR","设置网上银行及VNPay/二维码支付"],
+dNA5:["Form NA5","Mẫu NA5","NA5 양식","Formulaire NA5","NA5表格"],
+dIntro:["FTU Intro Letter","Thư giới thiệu của FTU","FTU 소개서","Lettre d'introduction FTU","FTU介绍信"],
+dStore:["Official telecom store (Viettel/Vinaphone)","Cửa hàng viễn thông chính thức (Viettel/Vinaphone)","공식 통신사 매장 (Viettel/Vinaphone)","Boutique officielle (Viettel/Vinaphone)","官方营业厅（Viettel/Vinaphone）"],
+pd:["Procedure Detail","Chi tiết thủ tục","절차 상세","Détail de la démarche","手续详情"],
+tl:["Timeline","Thời gian","소요 시간","Délai","时间"],
+co:["Coordinator","Người hỗ trợ","담당자","Interlocuteur","负责人"],
+ac:["Action","Hành động","해야 할 일","Action","操作"],
+ck:["Checklist","Danh sách cần chuẩn bị","체크리스트","Liste de contrôle","清单"],
+back:["Back to Dashboard","Về Bảng điều khiển","대시보드로 돌아가기","Retour au tableau de bord","返回仪表盘"],
+send:["Send Checklist to My Phone","Gửi danh sách đến điện thoại","체크리스트를 내 휴대폰으로 보내기","Envoyer la liste sur mon téléphone","发送清单到我的手机"],
+qrT:["Scan to save on your phone","Quét để lưu vào điện thoại","스캔하여 휴대폰에 저장","Scannez pour enregistrer sur votre téléphone","扫码保存到手机"],
+qrD:["Open your phone camera and scan this code to save the checklist for","Mở camera điện thoại và quét mã này để lưu danh sách cho","휴대폰 카메라로 이 코드를 스캔하여 다음 체크리스트를 저장하세요:","Ouvrez l'appareil photo de votre téléphone et scannez ce code pour enregistrer la liste :","打开手机相机扫描此码，保存清单："],
+qrN:["Demo QR · for pitch purposes only","QR demo · chỉ dùng để trình diễn","데모 QR · 시연용","QR de démonstration · à des fins de présentation","演示二维码 · 仅供展示"],
+done:["Done","Xong","완료","Terminé","完成"]};
+const translations=Object.fromEntries(LANGS.map((l,i)=>[l,Object.fromEntries(Object.entries(D).map(([k,v])=>[k,v[i]]))]));
+const LC=createContext("en");
+const useLang=()=>useContext(LC);
+const useL=()=>translations[useContext(LC)];
+
+const CARDS=[
+{id:1,cat:"lang",ic:"mic",feat:true},{id:2,cat:"admin",ic:"book",qr:true},{id:3,cat:"cult",ic:"users"},
+{id:4,cat:"cult",ic:"food"},{id:5,cat:"admin",ic:"phone"},{id:6,cat:"cult",ic:"bus"}];
+const PROCS=[
+{id:"res",ic:"home",vn:"Đăng ký tạm trú",t:"p1",time:"time1",who:"who1",act:"act1",docs:["dPass","dVisa","dLand"]},
+{id:"bank",ic:"bank",vn:"Mở tài khoản ngân hàng",t:"p2",time:"time2",who:"who2",act:"act2",docs:["dPass","dVisa","dConf","dEbank"]},
+{id:"visa",ic:"doc",vn:"Gia hạn thị thực",t:"p3",time:"time3",who:"who2",act:"act3",docs:["dNA5","dPass","dIntro"]},
+{id:"sim",ic:"sim",vn:"Đăng ký SIM",t:"p4",time:"time1",who:"who3",act:"act4",docs:["dPass","dStore"]}];
+const CHIPS=[["🏦","ch1","How do I open a bank account?"],["🏠","ch2","I need to register my temporary residence"],["🛂","ch3","How can I extend my visa?"],["🪪","ch4","Can you tell me how to get my student ID card?"],["📚","ch5","How do I register for classes?"],["📱","ch6","Where can I buy a SIM card?"]];
+const mockDB=[
+{intents:["open a bank account","how to get a bank card","bank account","vietcombank"],response:"To open a bank account in Vietnam, you need your original Passport, a valid Student Visa, and a Confirmation Letter from FTU. The nearest Vietcombank branch is located at 110 Chua Lang Street, just 500m from campus."},
+{intents:["temporary residence","register address","landlord","ward police","police"],response:"Administrative Procedure: Temporary Residence Registration. By Vietnamese law, your landlord must declare your residence at the local Ward Police Station (Công an Phường) within 24 hours of your arrival. You must provide them with your Passport and valid Visa."},
+{intents:["extend visa","visa extension","visa expire","form na5"],response:"Administrative Procedure: Visa Extension. You must submit Form NA5, your original passport, and the FTU Introduction Letter to the Hanoi Immigration Department (44 Pham Ngoc Thach). Important: Start this process at least 15 days before your current visa expires."},
+{intents:["student id","student card","get my id","where is my id"],response:"Administrative Procedure: Student ID Issuance. You can collect your FTU International Student ID at the International Office (Room A901, Building A) after submitting your physical enrollment profile and two 3x4cm photos during Orientation Week."},
+{intents:["course registration","register for classes","ftugate","enroll in course"],response:"Administrative Procedure: Course Registration. You will register for classes online via the FTU Student Portal (ftugate.ftu.edu.vn). The International Office will provide your account details. If you need help translating the portal, use the 'Study Tools' on this Hub."},
+{intents:["sim card","buy a sim","phone number","viettel","internet data"],response:"To register a local SIM card (Viettel, Vinaphone), you must bring your original passport to a telecom store to comply with real-name registration laws. The nearest Viettel store is at 110 Chua Lang."}];
+
+function Marquee(){const L=useL();return html`<div class="bg-[#C8102E] text-white rounded-2xl overflow-hidden py-2.5 shadow-lg"><div class="mq text-sm font-medium">${[0,1,2,3].map(i=>html`<span key=${i} class="pr-8 whitespace-pre">${L.mq}</span>`)}</div></div>`}
+function Weather(){const L=useL();return html`<div class="glass rounded-2xl px-4 py-2 flex items-center gap-3 text-sm font-semibold"><${Ic} n="sun" s=${18} c="text-amber-500"/><span>${L.city}: 28°C</span><span class="text-gray-300">|</span><${Ic} n="wind" s=${18} c="text-orange-600"/><span>AQI: 115 <span class="ml-1 px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-xs">${L.unh}</span></span></div>`}
+function Clock(){const lang=useLang();const [d,setD]=useState(new Date());useEffect(()=>{const i=setInterval(()=>setD(new Date()),1000);return()=>clearInterval(i)},[]);
+const loc={en:"en-GB",vn:"vi-VN",kr:"ko-KR",fr:"fr-FR",zh:"zh-CN"}[lang];
+return html`<div class="text-right leading-tight"><div class="text-xl font-bold tabular-nums">${d.toLocaleTimeString(loc,{hour:"2-digit",minute:"2-digit",second:"2-digit"})}</div><div class="text-xs text-gray-500">${d.toLocaleDateString(loc,{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div></div>`}
+
+function CardUI({c,onClick}){const L=useL();const f=c.feat;const tag={1:"LIVE",2:"PDF",4:"Halal · Veg",6:"Xanh SM"}[c.id]||L["tg"+c.id];
+return html`<button onClick=${onClick} class=${"card text-left rounded-3xl p-6 flex flex-col gap-4 relative overflow-hidden "+(f?"bg-gradient-to-br from-[#C8102E] to-[#8f0a20] text-white":"glass")}>
+<div class="flex items-start justify-between"><div class=${"w-14 h-14 rounded-2xl flex items-center justify-center "+(f?"bg-white/20":"bg-[#C8102E]/10 text-[#C8102E]")}><${Ic} n=${c.ic} s=${28}/></div>
+<span class=${"text-xs font-bold px-3 py-1 rounded-full "+(f?"bg-white text-[#C8102E]":"bg-[#C8102E]/10 text-[#C8102E]")}>${f&&html`<span class="inline-block w-2 h-2 rounded-full bg-[#C8102E] mr-1.5 animate-pulse"></span>`}${tag}</span></div>
+<div><h3 class="text-xl font-bold leading-snug">${L["c"+c.id]}</h3><p class=${"mt-1.5 text-sm "+(f?"text-white/85":"text-gray-600")}>${L["s"+c.id]}</p></div>
+<div class=${"mt-auto flex items-center justify-between text-sm font-semibold "+(f?"text-white":"text-[#C8102E]")}><span class="flex items-center gap-2">${c.qr&&html`<${Ic} n="qr" s=${18}/>`}${L["a"+c.id]}</span><${Ic} n="arrow" s=${18}/></div>
+${f&&html`<div class="absolute -right-8 -bottom-8 w-40 h-40 rounded-full bg-white/10"></div>`}</button>`}
+
+const LINES=[["Chào các bạn, hôm nay chúng ta học về thương mại quốc tế.","Hello everyone, today we study international trade."],["Thương mại quốc tế giúp các nước trao đổi hàng hóa và dịch vụ.","International trade lets countries exchange goods and services."],["Xuất khẩu là bán hàng hóa ra nước ngoài.","Exporting means selling goods abroad."],["Nhập khẩu là mua hàng hóa từ nước ngoài.","Importing means buying goods from abroad."],["Bài tập về nhà: đọc chương ba trước thứ Tư.","Homework: read chapter three before Wednesday."]];
+function Translator({onClose}){const L=useL();const [step,setStep]=useState(-1);const run=step>=0&&step<5;
+useEffect(()=>{if(!run)return;const i=setTimeout(()=>setStep(s=>s+1),1000);return()=>clearTimeout(i)},[step]);
+const shown=Math.max(0,Math.min(step,5));
+return html`<div class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-6"><div class="glass bg-white/90 rounded-3xl w-full max-w-3xl p-8 relative">
+<button onClick=${onClose} class="absolute top-5 right-5 p-2 rounded-full hover:bg-gray-100"><${Ic} n="x"/></button>
+<div class="flex items-center gap-3 mb-1"><div class="w-12 h-12 rounded-2xl bg-[#C8102E] text-white flex items-center justify-center"><${Ic} n="mic"/></div><div><h2 class="text-2xl font-bold">${L.c1}</h2><p class="text-sm text-gray-500">${L.trSub}</p></div></div>
+<div class="my-5 h-64 rounded-2xl bg-white border border-red-100 p-4 overflow-auto sc space-y-3">
+${step<0&&html`<div class="h-full flex flex-col items-center justify-center text-gray-400"><${Ic} n="mic" s=${40}/><p class="mt-2">${L.trIdle}</p></div>`}
+${LINES.slice(0,shown).map((l,i)=>html`<div key=${i} class="grid grid-cols-2 gap-4"><p class="text-gray-500 text-sm bg-gray-50 rounded-xl p-3">🇻🇳 ${l[0]}</p><p class="text-[#C8102E] font-semibold text-sm bg-red-50 rounded-xl p-3">🇬🇧 ${l[1]}</p></div>`)}</div>
+<div class="flex items-center gap-5">
+${run?html`<div class="flex items-end gap-1 h-8">${[0,1,2,3,4,5,6,7].map(i=>html`<div key=${i} class="bar" style=${{animationDelay:i*0.11+"s"}}></div>`)}</div><div class="flex-1 h-2 rounded-full bg-red-100 overflow-hidden"><div class="h-full bg-[#C8102E] transition-all duration-1000" style=${{width:(shown/5*100)+"%"}}></div></div><span class="text-sm font-semibold text-[#C8102E]">${L.listening} ${shown}/5s</span>`
+:html`<button onClick=${()=>setStep(0)} class="bg-[#C8102E] hover:bg-[#a60d26] text-white font-bold px-8 py-4 rounded-2xl flex items-center gap-3 shadow-lg"><${Ic} n="mic"/>${step>=5?L.restart:L.startL}</button>${step>=5&&html`<span class="text-sm text-gray-500">${L.tdone}</span>`}`}</div></div></div>`}
+
+function SOS({onBack}){const L=useL();return html`<div class="fixed inset-0 z-50 bg-[#C8102E] text-white flex flex-col items-center justify-center p-8 text-center">
+<div class="sos w-28 h-28 rounded-full bg-white text-[#C8102E] flex items-center justify-center mb-6"><${Ic} n="alert" s=${56}/></div>
+<h1 class="text-5xl font-extrabold tracking-tight">${L.emer}</h1><p class="mt-2 text-white/85 text-lg">${L.calm}</p>
+<div class="mt-8 bg-white text-[#C8102E] rounded-3xl px-10 py-6 shadow-2xl"><p class="text-sm font-bold uppercase tracking-widest">${L.hot}</p><p class="text-5xl font-black mt-1 tabular-nums">+84 24 3835 6800</p></div>
+<div class="mt-6 grid grid-cols-3 gap-4 w-full max-w-xl">${[[L.pol,"113"],[L.fire,"114"],[L.amb,"115"]].map(([n,v])=>html`<div key=${v} class="rounded-2xl bg-white/15 border border-white/30 py-3"><p class="text-xs uppercase text-white/80">${n}</p><p class="text-3xl font-bold">${v}</p></div>`)}</div>
+<button onClick=${onBack} class="mt-10 bg-white text-[#C8102E] font-bold px-8 py-3 rounded-2xl flex items-center gap-2"><${Ic} n="back" s=${20}/>${L.backHub}</button></div>`}
+
+function Bub({x}){const L=useL();const u=x.r==="u";const txt=x.key?L[x.key]:x.t;const mm=!u&&txt.match(/^Administrative Procedure: ([^.]+)\.\s*([\s\S]*)$/);
+return html`<div class=${"max-w-[88%] text-sm leading-relaxed rounded-2xl px-4 py-2.5 shadow-sm "+(u?"bg-[#C8102E] text-white rounded-br-sm":"bg-white border border-red-100 text-gray-800 rounded-bl-sm")}>${mm?html`<span class="inline-block text-[11px] font-bold uppercase tracking-wide text-[#C8102E] bg-red-50 px-2 py-0.5 rounded-full mb-1.5">📋 Thủ tục hành chính</span><p class="font-bold mb-1">${mm[1]}</p><p>${mm[2]}</p>`:txt}</div>`}
+
+function Chat(){const L=useL();const [open,setOpen]=useState(false);const [busy,setBusy]=useState(false);const [q,setQ]=useState("");
+const [m,setM]=useState([{r:"ai",key:"greet"}]);const end=useRef();
+useEffect(()=>{end.current&&end.current.scrollIntoView({behavior:"smooth"})},[m,busy,open]);
+const send=(text,shown)=>{text=(text||q).trim();if(!text||busy)return;setQ("");setM(x=>[...x,{r:"u",t:shown||text}]);setBusy(true);
+setTimeout(()=>{const l=text.toLowerCase();const hit=mockDB.find(d=>d.intents.some(k=>l.includes(k)));
+setM(x=>[...x,hit?{r:"ai",t:hit.response}:{r:"ai",key:"fb"}]);setBusy(false)},1500)};
+if(!open)return html`<button onClick=${()=>setOpen(true)} class="fixed bottom-6 right-6 z-30 bg-[#C8102E] text-white rounded-full pl-5 pr-6 py-4 shadow-2xl flex items-center gap-3 font-bold hover:scale-105 transition"><${Ic} n="msg"/>FTU Support AI</button>`;
+return html`<div class="fixed bottom-6 right-6 z-30 w-[380px] max-w-[calc(100vw-2rem)] h-[540px] max-h-[82vh] glass bg-white/90 rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+<div class="bg-gradient-to-r from-[#C8102E] to-[#a60d26] text-white px-5 py-4 flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"><${Ic} n="spark" s=${18}/></div><div class="flex-1"><p class="font-bold leading-tight">FTU Support AI</p><p class="text-xs text-white/80">● ${L.online}</p></div><button onClick=${()=>setOpen(false)}><${Ic} n="x" s=${20}/></button></div>
+<div class="flex-1 overflow-auto sc p-4 space-y-3 bg-gradient-to-b from-red-50/50 to-transparent">${m.map((x,i)=>html`<div key=${i} class=${"flex "+(x.r==="u"?"justify-end":"")}><${Bub} x=${x}/></div>`)}
+${busy&&html`<div class="inline-flex items-center gap-2 bg-white border border-red-100 rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-sm"><span class="w-4 h-4 rounded-full border-2 border-[#C8102E] border-t-transparent animate-spin"></span><span class="text-sm text-gray-500 italic">${L.search}</span></div>`}<div ref=${end}></div></div>
+<div class="px-4 pb-2 flex gap-1.5 flex-wrap">${CHIPS.map(([e,k,qq])=>html`<button key=${k} disabled=${busy} onClick=${()=>send(qq,e+" "+L[k])} class="text-xs px-3 py-1 rounded-full border border-[#C8102E]/30 text-[#C8102E] bg-white hover:bg-red-50 disabled:opacity-50">${e} ${L[k]}</button>`)}</div>
+<div class="p-3 border-t border-red-100 flex gap-2"><input value=${q} onInput=${e=>setQ(e.target.value)} onKeyDown=${e=>e.key==="Enter"&&send()} placeholder=${L.ph} class="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#C8102E] bg-white"/><button onClick=${()=>send()} class="bg-[#C8102E] text-white rounded-xl px-4"><${Ic} n="send" s=${18}/></button></div></div>`}
+
+function ProcCard({p,i,onClick}){const L=useL();const lang=useLang();return html`<button onClick=${onClick} class="card text-left glass rounded-3xl p-5 flex flex-col gap-3" style=${{borderTop:"4px solid #C8102E"}}>
+<div class="flex items-center justify-between"><div class="w-12 h-12 rounded-2xl bg-[#C8102E] text-white flex items-center justify-center shadow-md"><${Ic} n=${p.ic} s=${24}/></div><span class="text-xs font-bold text-[#C8102E] bg-red-50 rounded-full px-3 py-1">${L.step} ${i+1}</span></div>
+<div><h3 class="text-lg font-bold leading-snug">${L[p.t]}</h3>${lang!=="vn"&&html`<p class="text-xs text-gray-500 mt-0.5">${p.vn}</p>`}</div>
+<div class="mt-auto flex items-center justify-between text-sm font-semibold text-[#C8102E]"><span class="flex items-center gap-1.5"><${Ic} n="clock" s=${16}/>${L[p.time]}</span><${Ic} n="arrow" s=${18}/></div></button>`}
+
+function ProcDetail({p,onBack,onQr}){const L=useL();const [ok,setOk]=useState({});
+const Info=({ic,l,v})=>html`<div class="glass rounded-2xl p-4"><p class="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#C8102E]"><${Ic} n=${ic} s=${16}/>${l}</p><p class="mt-1.5 font-bold text-lg leading-snug">${v}</p></div>`;
+return html`<div class="space-y-4">
+<button onClick=${onBack} class="inline-flex items-center gap-2 bg-white border border-red-200 text-[#C8102E] font-bold px-5 py-2.5 rounded-2xl hover:bg-red-50"><${Ic} n="back" s=${18}/>${L.back}</button>
+<div class="rounded-3xl bg-gradient-to-br from-[#C8102E] to-[#8f0a20] text-white p-7 flex items-center gap-5 relative overflow-hidden"><div class="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center shrink-0"><${Ic} n=${p.ic} s=${32}/></div><div><p class="text-xs font-bold uppercase tracking-widest text-white/80">${L.pd} · Thủ tục hành chính</p><h2 class="text-3xl font-extrabold">${L[p.t]}</h2><p class="text-white/80">${p.vn}</p></div><div class="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-white/10"></div></div>
+<div class="grid md:grid-cols-2 gap-4"><${Info} ic="clock" l=${L.tl} v=${L[p.time]}/><${Info} ic="user" l=${L.co} v=${L[p.who]}/></div>
+<div class="glass rounded-2xl p-5"><p class="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#C8102E]"><${Ic} n="spark" s=${16}/>${L.ac}</p><p class="mt-2 text-lg leading-relaxed">${L[p.act]}</p></div>
+<div class="glass rounded-2xl p-5"><p class="text-xs font-bold uppercase tracking-wide text-[#C8102E] mb-3">${L.ck}</p><div class="grid sm:grid-cols-2 gap-2">${p.docs.map((d,i)=>html`<button key=${i} onClick=${()=>setOk(o=>({...o,[i]:!o[i]}))} class=${"flex items-center gap-3 text-left rounded-xl px-4 py-3 border transition "+(ok[i]?"bg-red-50 border-[#C8102E]/40":"bg-white border-gray-200")}><span class=${"w-6 h-6 rounded-full flex items-center justify-center shrink-0 "+(ok[i]?"bg-[#C8102E] text-white":"border-2 border-gray-300")}>${ok[i]&&html`<${Ic} n="check" s=${14} w=${3}/>`}</span><span class="font-medium">${L[d]}</span></button>`)}</div></div>
+<button onClick=${onQr} class="w-full bg-[#C8102E] hover:bg-[#a60d26] text-white font-bold text-lg py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl"><${Ic} n="mobile" s=${24}/>${L.send}</button></div>`}
+
+function QR({seed}){let h=0;for(const ch of seed)h=(h*31+ch.charCodeAt(0))>>>0;const r=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};const N=25,cells=[];
+const fin=(x,y)=>(x<8&&y<8)||(x>N-9&&y<8)||(x<8&&y>N-9);
+for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!fin(x,y)&&r()>.52)cells.push(html`<rect key=${x+"-"+y} x=${x} y=${y} width="1" height="1"/>`)}
+const F=(x,y)=>html`<g key=${x+"f"+y}><rect x=${x} y=${y} width="7" height="7"/><rect x=${x+1} y=${y+1} width="5" height="5" fill="#fff"/><rect x=${x+2} y=${y+2} width="3" height="3"/></g>`;
+return html`<svg viewBox="-1 -1 27 27" class="w-56 h-56 bg-white rounded-xl" fill="#111">${cells}${F(0,0)}${F(N-7,0)}${F(0,N-7)}</svg>`}
+
+function QRModal({p,onClose}){const L=useL();return html`<div class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-6"><div class="glass bg-white/95 rounded-3xl p-8 w-full max-w-md text-center relative">
+<button onClick=${onClose} class="absolute top-5 right-5 p-2 rounded-full hover:bg-gray-100"><${Ic} n="x"/></button>
+<div class="w-12 h-12 mx-auto rounded-2xl bg-[#C8102E] text-white flex items-center justify-center mb-3"><${Ic} n="mobile"/></div>
+<h2 class="text-2xl font-extrabold">${L.qrT}</h2><p class="text-sm text-gray-500 mt-1">${L.qrD} <b class="text-[#C8102E]">${L[p.t]}</b></p>
+<div class="my-5 inline-block p-3 rounded-2xl border-2 border-[#C8102E]/30 bg-white"><${QR} seed=${p.id}/></div>
+<p class="text-xs text-gray-400">${L.qrN}</p>
+<button onClick=${onClose} class="mt-4 bg-[#C8102E] text-white font-bold px-8 py-3 rounded-2xl">${L.done}</button></div></div>`}
+
+function App(){const [lang,setLang]=useState("en");const [view,setView]=useState("dash");const [tr,setTr]=useState(false);const [proc,setProc]=useState(null);const [qr,setQr]=useState(false);
+const L=translations[lang];
+const nav=[["dash","home"],["lang","lang"],["cult","heart"],["admin","brief"]];
+const cards=view==="dash"?CARDS:CARDS.filter(c=>c.cat===view);
+return html`<${LC.Provider} value=${lang}><div class="bg h-full flex flex-col">
+<header class="glass m-3 mb-0 rounded-3xl px-5 py-3 flex items-center gap-4 flex-wrap">
+<div class="flex items-center gap-3"><div class="w-11 h-11 rounded-xl bg-[#C8102E] text-white font-black flex items-center justify-center tracking-tight">FTU</div><div class="leading-tight"><p class="font-extrabold text-[#C8102E]">FTU Assistant Hub</p><p class="text-xs text-gray-500">${L.sub1}</p></div></div>
+<div class="flex-1 flex justify-center"><${Weather}/></div>
+<${Clock}/>
+<div class="flex rounded-xl bg-white/80 p-1 border border-red-100">${[["en","EN"],["vn","VN"],["kr","KR"],["fr","FR"],["zh","ZH"]].map(([k,l])=>html`<button key=${k} onClick=${()=>setLang(k)} class=${"px-2.5 py-1.5 rounded-lg text-sm font-bold "+(lang===k?"bg-[#C8102E] text-white":"text-gray-600")}>${l}</button>`)}</div></header>
+<div class="flex-1 flex gap-3 p-3 min-h-0">
+<aside class="glass rounded-3xl p-3 w-16 md:w-64 flex flex-col gap-2 shrink-0">
+${nav.map(([k,i])=>html`<button key=${k} onClick=${()=>{setView(k);setProc(null)}} class=${"flex items-center gap-3 px-4 py-3.5 rounded-2xl font-semibold text-left transition "+(view===k?"bg-[#C8102E] text-white shadow-lg":"text-gray-700 hover:bg-red-50")}><${Ic} n=${i}/><span class="hidden md:inline">${L[k]}</span></button>`)}
+<div class="flex-1"></div>
+<button onClick=${()=>setView("sos")} class="flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold text-[#C8102E] bg-red-50 border-2 border-[#C8102E]/40 hover:bg-[#C8102E] hover:text-white transition"><${Ic} n="alert"/><span class="hidden md:inline">${L.sos}</span></button></aside>
+<main class="flex-1 min-w-0 overflow-auto sc pr-1 space-y-4 pb-24">
+<${Marquee}/>
+${proc&&html`<${ProcDetail} key=${proc.id} p=${proc} onBack=${()=>setProc(null)} onQr=${()=>setQr(true)}/>`}
+<div class=${"flex items-end justify-between "+(proc?"hidden":"")}><div><h1 class="text-3xl font-extrabold">${L.hi} <span class="text-[#C8102E]">🇻🇳</span></h1><p class="text-gray-600">${L.hs}</p></div><span class="hidden lg:block text-sm font-semibold text-[#C8102E] bg-red-50 px-4 py-2 rounded-full">${L[view==="sos"?"dash":view]}</span></div>
+${!proc&&(view==="dash"||view==="admin")&&html`<section class="space-y-3"><div class="flex items-end justify-between"><div><h2 class="text-2xl font-extrabold">${L.procT}</h2><p class="text-sm text-gray-600">Thủ tục hành chính · ${L.procS}</p></div><span class="hidden md:block text-xs font-bold text-white bg-[#C8102E] px-3 py-1.5 rounded-full">${L.start}</span></div><div class="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">${PROCS.map((p,i)=>html`<${ProcCard} key=${p.id} p=${p} i=${i} onClick=${()=>setProc(p)}/>`)}</div></section>`}
+${!proc&&html`<h2 class="text-2xl font-extrabold pt-1">${L.tools}</h2>`}
+<div class=${"grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 "+(proc?"hidden":"")}>${cards.map(c=>html`<${CardUI} key=${c.id} c=${c} onClick=${()=>c.id===1&&setTr(true)}/>`)}</div>
+</main></div>
+${tr&&html`<${Translator} onClose=${()=>setTr(false)}/>`}
+${qr&&proc&&html`<${QRModal} p=${proc} onClose=${()=>setQr(false)}/>`}
+${view==="sos"&&html`<${SOS} onBack=${()=>setView("dash")}/>`}
+<${Chat}/></div><//>`}
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App}/>`);
+</script>
+</body>
+</html>
